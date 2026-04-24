@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life App</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #05070d;
+  color: white;
+}
+
+/* ---------- СТРАНИЦЫ ---------- */
+.page {
+  display: none;
+  padding: 16px;
+  padding-bottom: 90px;
+}
+
+.page.active {
+  display: block;
+}
+
+/* ---------- КАРТОЧКИ ---------- */
+.card {
+  background: #0b1220;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+/* ---------- HEADER ---------- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.calendar-btn {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* ---------- POPUP ---------- */
+.calendar-popup {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background: #0b1220;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid #1e90ff;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ---------- НЕДЕЛЯ ---------- */
+.week {
+  display: flex;
+  overflow-x: auto;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.day {
+  min-width: 50px;
+  text-align: center;
+  padding: 10px;
+  border-radius: 12px;
+  background: #0b1220;
+  border: 1px solid #1e90ff;
+  cursor: pointer;
+}
+
+.day.active {
+  background: #1e90ff;
+}
+
+/* ---------- ПРИВЫЧКИ ---------- */
+.habits {
+  display: flex;
+  gap: 10px;
+}
+
+.habit {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #1e90ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- BOX ---------- */
+.box-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.box-tabs span {
+  cursor: pointer;
+  color: #6b7a99;
+}
+
+.active-tab {
+  color: #1e90ff;
+}
+
+/* ---------- НАВИГАЦИЯ ---------- */
+.nav {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  background: rgba(15,20,40,0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  box-shadow: 0 0 20px rgba(30,144,255,0.3);
+}
+
+.nav-btn {
+  color: #6b7a99;
+  text-align: center;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.nav-btn.active {
+  color: #1e90ff;
+  transform: scale(1.1);
+}
+
+.icon {
+  font-size: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ---------- ПЛАНЕР ---------- -->
+<div id="planner" class="page active">
+
+  <div class="header">
+    <h2>Планер</h2>
+    <div class="calendar-btn" onclick="toggleCalendar()">📅</div>
+  </div>
+
+  <div id="calendarPopup" class="calendar-popup hidden">
+    <input type="date" onchange="selectDate(this.value)">
+  </div>
+
+  <div class="week" id="week"></div>
+
+  <div class="card">
+    <h3>События</h3>
+    <div id="events">Нет событий</div>
+  </div>
+
+  <div class="card">
+    <h3>Расписание</h3>
+    <div id="schedule"></div>
+  </div>
+
+  <div class="card">
+    <h3>Привычки</h3>
+    <div class="habits" id="habits"></div>
+  </div>
+
+  <div class="card">
+    <h3>Квесты</h3>
+    <div id="quests"></div>
+  </div>
+
+  <div class="card">
+    <div class="box-tabs">
+      <span onclick="switchBox('tasks', this)" class="active-tab">Задачи</span>
+      <span onclick="switchBox('plans', this)">План</span>
+      <span onclick="switchBox('goals', this)">Цели</span>
+    </div>
+    <div id="boxContent"></div>
+  </div>
+
+</div>
+
+<!-- ---------- ДРУГИЕ СТРАНИЦЫ ---------- -->
+<div id="health" class="page">
+  <h2>Здоровье</h2>
+  <div class="card">Сон / питание / эмоции</div>
+</div>
+
+<div id="finance" class="page">
+  <h2>Финансы</h2>
+  <div class="card">Доходы / расходы</div>
+</div>
+
+<div id="stats" class="page">
+  <h2>Статистика</h2>
+  <div class="card">Графики</div>
+</div>
+
+<div id="settings" class="page">
+  <h2>Настройки</h2>
+  <div class="card">Здесь потом добавим управление данными</div>
+</div>
+
+<!-- ---------- НИЖНЯЯ ПАНЕЛЬ ---------- -->
+<div class="nav">
+
+  <div class="nav-btn active" onclick="switchPage('planner', this)">
+    <div class="icon">🏠</div>Планер
+  </div>
+
+  <div class="nav-btn" onclick="switchPage('health', this)">
+    <div class="icon">❤️</div>Здоровье
+  </div>
+
+  <div class="nav-btn" onclick="switchPage('finance', this)">
+    <div class="icon">💰</div>Финансы
+  </div>
+
+  <div class="nav-btn" onclick="switchPage('stats', this)">
+    <div class="icon">📊</div>Статистика
+  </div>
+
+  <div class="nav-btn" onclick="switchPage('settings', this)">
+    <div class="icon">⚙️</div>Настройки
+  </div>
+
+</div>
+
+<script>
+
+// ---------- ПЕРЕКЛЮЧЕНИЕ СТРАНИЦ ----------
+function switchPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'))
+  document.getElementById(id).classList.add('active')
+
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'))
+  el.classList.add('active')
+}
+
+// ---------- ДАТА ----------
+let currentDate = new Date()
+let currentBox = "tasks"
+
+// ---------- КАЛЕНДАРЬ ----------
+function toggleCalendar() {
+  document.getElementById("calendarPopup").classList.toggle("hidden")
+}
+
+function selectDate(date) {
+  currentDate = new Date(date)
+  renderWeek()
+}
+
+// ---------- НЕДЕЛЯ ----------
+function renderWeek() {
+  const week = document.getElementById("week")
+  week.innerHTML = ""
+
+  let start = new Date(currentDate)
+  start.setDate(start.getDate() - start.getDay())
+
+  for (let i = 0; i < 7; i++) {
+    let d = new Date(start)
+    d.setDate(start.getDate() + i)
+
+    let el = document.createElement("div")
+    el.className = "day"
+    el.innerText = d.getDate()
+
+    if (d.toDateString() === currentDate.toDateString()) {
+      el.classList.add("active")
+    }
+
+    el.onclick = () => {
+      currentDate = d
+      renderWeek()
+    }
+
+    week.appendChild(el)
+  }
+}
+
+// ---------- BOX ----------
+function switchBox(type, el) {
+  currentBox = type
+
+  document.querySelectorAll(".box-tabs span").forEach(e => e.classList.remove("active-tab"))
+  el.classList.add("active-tab")
+
+  renderBox()
+}
+
+function renderBox() {
+  const box = document.getElementById("boxContent")
+
+  if (currentBox === "tasks") box.innerHTML = "Задачи"
+  if (currentBox === "plans") box.innerHTML = "План дня"
+  if (currentBox === "goals") box.innerHTML = "Цели"
+}
+
+// ---------- ДАННЫЕ ----------
+function renderHabits() {
+  const data = ["💧","🏃","📚"]
+  const el = document.getElementById("habits")
+  el.innerHTML = ""
+
+  data.forEach(h => {
+    let d = document.createElement("div")
+    d.className = "habit"
+    d.innerText = h
+    el.appendChild(d)
+  })
+}
+
+function renderSchedule() {
+  const data = [
+    {time:"08:00",text:"Фокус"},
+    {time:"10:00",text:"Встреча"}
+  ]
+
+  const el = document.getElementById("schedule")
+  el.innerHTML = ""
+
+  data.forEach(e => {
+    el.innerHTML += `<div>${e.time} — ${e.text}</div>`
+  })
+}
+
+function renderQuests() {
+  document.getElementById("quests").innerHTML = "1/3 выполнено"
+}
+
+// ---------- СТАРТ ----------
+renderWeek()
+renderBox()
+renderHabits()
+renderSchedule()
+renderQuests()
+
+</script>
+
+</body>
+</html>
